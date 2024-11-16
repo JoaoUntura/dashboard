@@ -5,10 +5,9 @@ import getDadosLine from '../func/line.jsx';
 
 
 export default async function Page() {
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const dadosDonut = await getDadosDonut(month)
-    const dadosLine = await getDadosLine(month)
+   
+    const dadosDonut = await getDadosDonut(11)
+    const dadosLine = await getDadosLine(11)
     
   return (
     <Graph dadosDonut={dadosDonut} dadosLine={dadosLine} ></Graph>

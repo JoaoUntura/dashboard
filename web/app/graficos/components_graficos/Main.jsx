@@ -10,9 +10,8 @@ export default function Graph({ dadosDonut:initialDadosDonut, dadosLine:initialD
     const [dadosDonut, setDadosDonut] = useState(initialDadosDonut)
     const [dadosLine, setDadosLine] = useState(initialDadosLine)
 
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const [mes, setMes] = useState(month)
+
+    const [mes, setMes] = useState(11)
 
     const handleChange = (event) => {
         setMes(event.target.value);

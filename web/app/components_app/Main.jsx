@@ -39,7 +39,7 @@ export default function Main({categoria_receita, categoria_despesa, transacoes:i
     const finishRegistro = async() => {
         if (tipo && idcategoria && data && obb && valor){
             const data_formatada = date.toISOString()
-            api.post("http://192.168.3.3:8000/relatorio", {tipo:tipo,idcategoria: idcategoria, data: data_formatada, obb, valor})
+            api.post("/relatorio", {tipo:tipo,idcategoria: idcategoria, data: data_formatada, obb, valor})
             closeModal()
             let newTransasoes = await getTransacoes()
             setTransacoes(newTransasoes);
@@ -52,7 +52,7 @@ export default function Main({categoria_receita, categoria_despesa, transacoes:i
 
 
     const deleteRegistro = async(idRegistro, tipoRegistro) => {
-        api.post("http://192.168.3.3:8000/delete_registro", {id:idRegistro, tipo:tipoRegistro})
+        api.post("/delete_registro", {id:idRegistro, tipo:tipoRegistro})
         let newTransasoes = await getTransacoes()
         setTransacoes(newTransasoes);
     }

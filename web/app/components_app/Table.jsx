@@ -58,6 +58,7 @@ export default function Table({data, deleteRegistro}){
         })
     )
     
+    
     const pesquisaTabela = (texto) =>{
         
         if (texto){

@@ -1,15 +1,13 @@
 'use client';
-
-import Chart from 'chart.js/auto';
 import { Doughnut  } from "react-chartjs-2";
 
-const DonutChart = ({labels, series,colors}) => {
+const DonutChart = ({dadosDonut}) => {
   const data = {
-    labels: labels,
+    labels: dadosDonut.labels,
     datasets: [{
       label: 'Valor',
-      data: series,
-      backgroundColor: colors,
+      data: dadosDonut.dados,
+      backgroundColor: dadosDonut.colors,
       hoverOffset: 4
     }]
   };

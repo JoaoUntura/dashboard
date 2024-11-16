@@ -6,12 +6,10 @@ import getDadosLine from '../../func/line.jsx';
 import { useState , useEffect} from 'react';
 
 
-export default function Graph({ labels: initialLabels, dados: initialDados, colors: initialColors, data_despesa:initialDespesa, data_receita:initialReceita }) {
-    const [labels, setLabels] = useState(initialLabels)
-    const [dados, setDados] = useState(initialDados)
-    const [colors, setColors] = useState(initialColors)
-    const [data_despesa, setDespesa] = useState(initialDespesa)
-    const [data_receita, setReceita] = useState(initialReceita)
+export default function Graph({ dadosDonut:initialDadosDonut, dadosLine:initialDadosLine }) {
+    const [dadosDonut, setDadosDonut] = useState(initialDadosDonut)
+    const [dadosLine, setDadosLine] = useState(initialDadosLine)
+
     const now = new Date();
     const month = now.getMonth() + 1;
     const [mes, setMes] = useState(month)
@@ -21,26 +19,20 @@ export default function Graph({ labels: initialLabels, dados: initialDados, colo
       };
 
     useEffect(() => {
-        const updateDadoss = async () => {
-            let updatedDados = await getDadosDonut(mes)
-            setLabels(updatedDados.labels)
-            setDados(updatedDados.dados)
-            setColors(updatedDados.colors)
+        const updateDados= async () => {
+            let updatedDadosDonut = await getDadosDonut(mes)
+            setDadosDonut(updatedDadosDonut)
             
             let updatedDadosLine = await getDadosLine(mes)
-            setDespesa(updatedDadosLine.data_despesa)
-            setReceita(updatedDadosLine.data_receita)
-
+            setDadosLine(updatedDadosLine)
         }
 
-        updateDadoss();
+        updateDados();
     }, [mes])
 
 
-
   return (
-    
-    <div className="p-20 ml-20 flex flex-col items-center justify-center">
+      <div className="p-20 ml-20 flex flex-col items-center justify-center">
           <select id="number" value={mes} onChange={handleChange}>
               <option value="">Selecione um número</option>
               {[...Array(12).keys()].map(i => (
@@ -50,16 +42,13 @@ export default function Graph({ labels: initialLabels, dados: initialDados, colo
               ))}
           </select>
           <div className='mb-20 flex flex-row w-full h-[500px] justify-evenly'>
-          <div className='flex flex-row w-1/3 py-12 rounded-xlg shadow-lg px-1 justify-center '>
-              <DonutChart labels={labels} series={dados} colors={colors}> </DonutChart>
-        </div>
-        <div className='flex flex-row w-1/2  rounded-xlg shadow-lg p-5 justify-center items-center'>
-              <LineGraph data_despesa={data_despesa} data_receita={data_receita}> </LineGraph>
+              <div className='flex flex-row w-1/3 py-12 rounded-xlg shadow-lg px-1 justify-center '>
+                  <DonutChart dadosDonut={dadosDonut}> </DonutChart>
+              </div>
+              <div className='flex flex-row w-1/2  rounded-xlg shadow-lg p-5 justify-center items-center'>
+                  <LineGraph dadosLine={dadosLine} > </LineGraph>
               </div>
           </div>
 
-        
-    </div>)
-
-  
+      </div>)
 }

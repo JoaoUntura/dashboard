@@ -9,7 +9,7 @@ import axios from 'axios';
 import Table from './Table.jsx'
 import getTransacoes from '../func/transacoes.jsx';
 import { data } from 'motion/react-client';
-
+import api from './api'
 
 export default function Main({categoria_receita, categoria_despesa, transacoes:initialTransacoes}) {
 
@@ -40,7 +40,7 @@ export default function Main({categoria_receita, categoria_despesa, transacoes:i
     const finishRegistro = async() => {
         if (tipo && idcategoria && data && obb && valor){
             const data_formatada = date.toISOString()
-            axios.post("http://192.168.3.3:8000/relatorio", {tipo:tipo,idcategoria: idcategoria, data: data_formatada, obb, valor})
+            api.post("http://192.168.3.3:8000/relatorio", {tipo:tipo,idcategoria: idcategoria, data: data_formatada, obb, valor})
             closeModal()
             let newTransasoes = await getTransacoes()
             setTransacoes(newTransasoes);
@@ -53,7 +53,7 @@ export default function Main({categoria_receita, categoria_despesa, transacoes:i
 
 
     const deleteRegistro = async(idRegistro, tipoRegistro) => {
-        axios.post("http://192.168.3.3:8000/delete_registro", {id:idRegistro, tipo:tipoRegistro})
+        api.post("http://192.168.3.3:8000/delete_registro", {id:idRegistro, tipo:tipoRegistro})
         let newTransasoes = await getTransacoes()
         setTransacoes(newTransasoes);
     }

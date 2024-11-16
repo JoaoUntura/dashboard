@@ -1,9 +1,9 @@
 'use server';
-import axios from 'axios';
+import api from './api'
 
 export default async function getTransacoes() {
     try {
-        const response = await axios.get("http://192.168.3.3:8000/transacoes");
+        const response = await api.get("http://192.168.3.3:8000/transacoes");
     
         return response.data.transacoes
         

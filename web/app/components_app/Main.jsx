@@ -5,11 +5,11 @@ import Modal from './Modal.jsx'
 import clsx from 'clsx';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; 
-import axios from 'axios';
+
 import Table from './Table.jsx'
 import getTransacoes from '../func/transacoes.jsx';
 import { data } from 'motion/react-client';
-import api from './api'
+import api from '../func/api.jsx'
 
 export default function Main({categoria_receita, categoria_despesa, transacoes:initialTransacoes}) {
 

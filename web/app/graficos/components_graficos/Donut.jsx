@@ -1,5 +1,9 @@
 'use client';
-import { Doughnut  } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Doughnut } from "react-chartjs-2";
+
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const DonutChart = ({dadosDonut}) => {
   const data = {
@@ -12,24 +16,21 @@ const DonutChart = ({dadosDonut}) => {
     }]
   };
 
-  const config = {
-    type: 'doughnut',
-    data: data,
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: 'top',
-        },
-        title: {
-          display: true,
-          text: 'Chart.js Doughnut Chart'
-        }
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Chart.js Doughnut Chart'
       }
-    },
+    }
   };
+
   return(
-    <Doughnut data={data} config={config}/>
+    <Doughnut data={data} options={options} />
   )
 };
 

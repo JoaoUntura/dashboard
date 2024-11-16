@@ -5,7 +5,6 @@ import Modal from './Modal.jsx'
 import clsx from 'clsx';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; 
-
 import Table from './Table.jsx'
 import getTransacoes from '../func/transacoes.jsx';
 import { data } from 'motion/react-client';

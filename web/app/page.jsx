@@ -6,13 +6,13 @@ import getCategorias from './func/categorias.jsx';
 
 
 export default async function Home() {
-    const {categoria_receita,categoria_despesa} = await getCategorias();
+    const categorias = await getCategorias();
     const transacoes = await getTransacoes();
     
     
 return(
     <Suspense fallback={<p>Loading feed...</p>}>
-    <Main categoria_receita={categoria_receita} categoria_despesa={categoria_despesa} transacoes={transacoes}></Main>
+    <Main categorias={categorias} transacoes={transacoes}></Main>
     </Suspense>
 )
 

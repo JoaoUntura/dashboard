@@ -17,16 +17,18 @@ export default function Table({data, deleteRegistro}){
 
     useEffect(() => {
         setDadosFiltrados(data);
+        console.log(data)
     }, [data]); 
 
 
     const headers = [{"name":"Categoria"},{"name": "Observação"}, {"name": "data"},{"name": "valor"},{"name":"tools"}]
 
     const renderData = () =>(
+        
         dados_filtrados.map((d,index) => {
-            if (d.idReceita && filtro !== "Despesa"){
+            if (d.tipo === 'Receita'  && filtro !== "Despesa"){
                 return <motion.tr
-                key={d.idReceita + "_receita"}
+                key={d.idRegistro + "_receita"}
                 custom={index}
                 initial="hidden"
                 animate="visible"
@@ -37,11 +39,11 @@ export default function Table({data, deleteRegistro}){
                 <td className="py-3 px-4 pr-8 w-52">{d.observacao}</td>
                 <td className="py-3 px-4 pr-8 w-36 " >{d.data}</td>
                 <td className="text-green-600 py-3 px-4 pr-8 w-28">+ {d.valor}</td>
-                <td className="py-3 px-4 pr-8 w-16"><button onClick={()=>deleteRegistro(d.idReceita, "Receita")}>X</button></td>
+                <td className="py-3 px-4 pr-8 w-16"><button onClick={()=>deleteRegistro(d.idRegistro, "Receita")}>X</button></td>
                 </motion.tr>
-            }else if(d.idDespesa && filtro !== "Receita"){
+            }else if(d.tipo === "Despesa" && filtro !== "Receita"){
                 return <motion.tr
-                key={d.idDespesa + "_despesa"}
+                key={d.idRegistro + "_despesa"}
                 custom={index}
                 initial="hidden"
                 animate="visible"
@@ -52,7 +54,7 @@ export default function Table({data, deleteRegistro}){
                 <td className="py-3 px-4 pr-8 w-52"> {d.observacao}</td>
                 <td className="py-3 px-4 pr-8 w-36" >{d.data}</td>
                 <td className="text-red-600 py-3 px-4 pr-8  w-28">- {d.valor}</td>
-                <td className="py-3 px-4 pr-8 w-16"><button onClick={()=>deleteRegistro(d.idDespesa, "Despesa")}>X</button></td>
+                <td className="py-3 px-4 pr-8 w-16"><button onClick={()=>deleteRegistro(d.idRegistro, "Despesa")}>X</button></td>
             </motion.tr>
             }
         })

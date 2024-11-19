@@ -2,7 +2,7 @@ import axios from 'axios';
 
 
 const api = axios.create({
-  baseURL: 'https://ql4zt7gm-8000.brs.devtunnels.ms/' 
+  baseURL: 'http://192.168.3.3:8000' 
 });
 
 // Exporta a instância para ser usada em outros arquivos

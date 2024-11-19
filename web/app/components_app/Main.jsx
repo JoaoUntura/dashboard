@@ -7,27 +7,23 @@ import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; 
 import Table from './Table.jsx'
 import getTransacoes from '../func/transacoes.jsx';
-import { data } from 'motion/react-client';
 import api from '../func/api.jsx'
 
-export default function Main({categoria_receita, categoria_despesa, transacoes:initialTransacoes}) {
+export default function Main({categorias, transacoes:initialTransacoes}) {
 
     const[isOpenModal, setModal] = useState(false)
-    const[idcategoria, setCategoria] = useState([])
-    const [date, setDate] = useState(new Date());
-    const [obb, setObb] = useState("");
-    const [valor, setValor] = useState("");
+    const [registro, setRegistro] = useState({idcategoria:null, date: new Date(), obb:"", valor:""})
     const [tipo, setTipo] = useState(null);
+
+
     const [recorrencia, setRecorrencia] = useState({ativo: false, frequencia: "Selecionar"})
-
-
     const [transacoes_data, setTransacoes] = useState(initialTransacoes)
     
     const closeModal = () => setModal(false)
     const openModal = () => setModal(true)
 
     const handleDateChange = (newDate) => {
-        setDate(newDate);
+        setRegistro(prev => ({...prev, date: newDate}));
       };
     
     const handleNewRegistro = (newTipo) =>{
@@ -37,9 +33,11 @@ export default function Main({categoria_receita, categoria_despesa, transacoes:i
     
 
     const finishRegistro = async() => {
-        if (tipo && idcategoria && data && obb && valor){
-            const data_formatada = date.toISOString()
-            api.post("/relatorio", {tipo:tipo,idcategoria: idcategoria, data: data_formatada, obb, valor})
+        console.log(registro)
+        console.log(tipo)
+        if (tipo && registro.idcategoria && registro.date && registro.obb && registro.valor){
+            const data_formatada = registro.date.toISOString()
+            api.post("/relatorio", {tipo:tipo,idcategoria: registro.idcategoria, data: data_formatada, obb: registro.obb, valor: registro.valor})
             closeModal()
             let newTransasoes = await getTransacoes()
             setTransacoes(newTransasoes);
@@ -51,23 +49,20 @@ export default function Main({categoria_receita, categoria_despesa, transacoes:i
     }
 
 
-    const deleteRegistro = async(idRegistro, tipoRegistro) => {
-        api.post("/delete_registro", {id:idRegistro, tipo:tipoRegistro})
+    const deleteRegistro = async(idRegistro) => {
+        api.post("/delete_registro", {id:idRegistro})
         let newTransasoes = await getTransacoes()
         setTransacoes(newTransasoes);
     }
 
 
     const renderCategorias = () => {
-        if (tipo === "Receita"){
-            return categoria_receita.map(c => (
-                <button key={c.idcategorias} onClick={()=>setCategoria(c.idcategorias)} className={clsx('text-white bg-stone-800 hover:bg-stone-600 font-medium rounded-full text-sm px-5 py-2.5 me-2 mb-2',{'outline-none ring-2 ring-red-700':idcategoria === c.idcategorias})} >{c.descricao}</button>
-            ))
-        }else{
-            return categoria_despesa.map(c => (
-                <button key={c.idcategorias} onClick={()=>setCategoria(c.idcategorias)} className={clsx('text-white bg-stone-800 hover:bg-stone-600 font-medium rounded-full text-sm px-5 py-2.5 me-2 mb-2',{'outline-none ring-2 ring-red-700':idcategoria === c.idcategorias})}>{c.descricao}</button>
-            ))  
+        if (tipo){
+        const filteredCategorias = categorias.filter(c => c.tipo === tipo);
+        return filteredCategorias.map(c => (
+            <button key={c.idcategorias} onClick={()=>setRegistro(prev => ({...prev, idcategoria: c.idcategorias}))} className={clsx('text-white bg-stone-800 hover:bg-stone-600 font-medium rounded-full text-sm px-5 py-2.5 me-2 mb-2',{'outline-none ring-2 ring-red-700':registro.idcategoria === c.idcategorias})} >{c.descricao}</button>))
         }
+    
     }
 
  
@@ -81,9 +76,9 @@ export default function Main({categoria_receita, categoria_despesa, transacoes:i
                 <div className='flex flex-row flex-wrap items-center justify-evenly mb-8'>
                     {renderCategorias()}
                 </div>
-                  <textarea value={obb} onChange={(e) => setObb(e.target.value)} className='mb-8 w-96 h-32 rounded p-2 focus:outline-none placeholder-gray-500 bg-stone-100' placeholder='Observações'></textarea>
-                  <Calendar className='mb-8 rounded-lg' onChange={handleDateChange} value={date}></Calendar>
-                  <input value={valor} onChange={(e)=>setValor(e.target.value)} className='p-2 mb-5 mr-5 border-none focus:outline-none placeholder-gray-500 bg-stone-100' type='number' placeholder='Valor'></input>
+                  <textarea value={registro.obb} onChange={(e) => setRegistro(prev => ({...prev, obb: e.target.value}))} className='mb-8 w-96 h-32 rounded p-2 focus:outline-none placeholder-gray-500 bg-stone-100' placeholder='Observações'></textarea>
+                  <Calendar className='mb-8 rounded-lg' onChange={handleDateChange} value={registro.date}></Calendar>
+                  <input value={registro.valor} onChange={(e) => setRegistro(prev => ({...prev, valor: e.target.value}))} className='p-2 mb-5 mr-5 border-none focus:outline-none placeholder-gray-500 bg-stone-100' type='number' placeholder='Valor'></input>
 
                   <input  id='recorrencia' type='checkbox' onChange={() =>setRecorrencia((prev) => ({...prev, ativo: !prev.ativo}))}></input>
                   <label htmlFor="recorrencia">Recorrente</label>

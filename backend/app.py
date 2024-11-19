@@ -1,13 +1,24 @@
-from fastapi import FastAPI, APIRouter, Depends, Request
+from fastapi import FastAPI, Depends, Request
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer
-from passlib.hash import bcrypt
 from datetime import datetime
 from banco import Banco
+from contextlib import asynccontextmanager
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize database connection pool
+    await bd.database.connect()
+    yield
+    # Cleanup
+    await bd.database.disconnect()
+
+
 
 bd = Banco()
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -27,7 +38,6 @@ app.add_middleware(
     allow_headers=["*"],  # Permite todos os cabeçalhos
 )
 
-
 class Registro(BaseModel):
     tipo:str
     idcategoria:int
@@ -40,19 +50,11 @@ class Mes(BaseModel):
 
 class Id(BaseModel):
     id:int
-    tipo:str
-
-@app.on_event("startup")
-async def startup():
-    await bd.connect()
-
-@app.on_event("shutdown")
-async def shutdown():
-    await bd.disconnect()
+  
 
 @app.post("/relatorio")
-async def muscles(registro:Registro):
-    print(registro)
+async def relatorio(registro:Registro):
+ 
     data_obj = datetime.strptime(registro.data, "%Y-%m-%dT%H:%M:%S.%fZ")
     data_mysql = data_obj.strftime("%Y-%m-%d")
     await bd.insert_registro(registro.tipo, registro.idcategoria, data_mysql , registro.obb, registro.valor)
@@ -61,7 +63,7 @@ async def muscles(registro:Registro):
 
 @app.post("/delete_registro")
 async def delete_registro(newId:Id):
-    await bd.delete_registro(newId.id, newId.tipo)
+    await bd.delete_registro(newId.id)
         
     return {"message": "Registro deletado com sucesso"}  
    
@@ -69,65 +71,48 @@ async def delete_registro(newId:Id):
 
 @app.get("/categorias")
 async def categorias(request:Request):
-    categorias_receita = await bd.select_categorias_receita()
-    categorias_despesa = await bd.select_categorias_despesa()
+    categorias = await bd.select_categorias()
     
-    return {"categorias_receita":categorias_receita,"categorias_despesa": categorias_despesa}
+    
+    return {"categorias":categorias}
 
 @app.get("/transacoes")
 async def transacoes(request:Request):
-    receitas = await bd.select_receita()
-    despesas = await bd.select_despesa()
-    transacoes  = [*receitas, *despesas]
-    transacoes.sort(key=lambda x: x['data'], reverse=True)
-    
+
+    transacoes  = await bd.select_all()
+
     return {"transacoes": transacoes}
 
 
 @app.post("/dados_donut")
-async def dados(mes_num:Mes):
+async def dados_donut(mes_num:Mes):
 
-    dados_despesa = await bd.select_despesa_by_categoria(mes_num.mes)
-    dados_receita = await bd.select_receita_by_categoria(mes_num.mes)
-
-    if not dados_despesa and not dados_receita:
+    labels, dados, colors= [],[],[]
+    dados_by_categoria = await bd.select_dados_by_categoria(mes_num.mes)
+    if not dados_by_categoria:
         return  {"labels":['Sem Registros'], "dados":[1], "colors":['rgb(255, 255, 0)']}
 
-
-    labels_despesa, nums_despesa, colors_despesa = [],[],[]
-    for item in dados_despesa:
-        labels_despesa.append(item['descricao'])
-        nums_despesa.append(item['soma'])
-        colors_despesa.append('rgb(255, 0, 0)')
-
-
-    labels_receita, nums_receita, colors_receita = [],[],[]
-    for item in dados_receita:
-        labels_receita.append(item['descricao'])
-        nums_receita.append(item['soma'])
-        colors_receita.append('rgb(0, 128, 0)')
-
-
-    labels = [*labels_despesa, *labels_receita]
-    dados = [*nums_despesa, *nums_receita]
-    colors = [*colors_despesa,*colors_receita]
-
-    
-    return {"labels":labels, "dados":dados, "colors":colors}
+    else:
+        for d in dados_by_categoria:
+            labels.append(d['descricao'])
+            dados.append(d['soma'])
+            if d['tipo'] == 'Despesa':
+                colors.append('rgb(255, 0, 0)')
+            elif d['tipo'] == 'Receita':
+                colors.append('rgb(0, 128, 0)')
+        return {"labels": labels, "dados":dados, "colors":colors}
+   
 
 @app.post("/dados_line")
 async def dados_line(mes_num:Mes):
-    dados_receita = await bd.select_receita_by_date(mes_num.mes)
-    dados_despesa = await bd.select_despesa_by_date(mes_num.mes)
+    dados = await bd.select_dados_by_date(mes_num.mes)
 
-    data_receita = []
-    for receita in dados_receita:
-        data_receita.append({'x':receita['data'].day,'y':receita['valor'], 'descricao':receita[ 'descricao'], 'data': receita['data']})
-
-
-    data_despesa = []
-    for despesa in dados_despesa:
-        data_despesa.append({'x':despesa['data'].day,'y':despesa['valor'], 'descricao':despesa[ 'descricao'], 'data': despesa['data']})
+    data_receita, data_despesa = [], []
+    for d in dados:
+        if d['tipo'] == 'Receita':
+            data_receita.append({'x':d['data'].day,'y':d['valor'], 'descricao':d[ 'descricao'], 'data': d['data']})
+        elif d['tipo'] == 'Despesa':
+            data_despesa.append({'x':d['data'].day,'y':d['valor'], 'descricao':d[ 'descricao'], 'data': d['data']})
 
     return {"data_despesa":data_despesa, "data_receita":data_receita}
 

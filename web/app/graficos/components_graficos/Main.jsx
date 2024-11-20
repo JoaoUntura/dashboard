@@ -9,30 +9,44 @@ import { useState , useEffect} from 'react';
 export default function Graph({ dadosDonut:initialDadosDonut, dadosLine:initialDadosLine }) {
     const [dadosDonut, setDadosDonut] = useState(initialDadosDonut)
     const [dadosLine, setDadosLine] = useState(initialDadosLine)
-
-
+    const [load, setLoad] = useState(false);
     const [mes, setMes] = useState(11)
 
     const handleChange = (event) => {
-        setMes(event.target.value);
+       
+        const newMes = event.target.value
+        setMes(newMes);
+        updateDados(newMes);
+       
       };
 
-    useEffect(() => {
-        const updateDados= async () => {
-            let updatedDadosDonut = await getDadosDonut(mes)
-            setDadosDonut(updatedDadosDonut)
-            
-            let updatedDadosLine = await getDadosLine(mes)
-            setDadosLine(updatedDadosLine)
-        }
+    const updateDados= async (newMes) => {
+        setLoad(true);
+        let updatedDadosDonut = await getDadosDonut(newMes);
+        setDadosDonut(updatedDadosDonut);
+        
+        let updatedDadosLine = await getDadosLine(newMes);
+        setDadosLine(updatedDadosLine);
+        setLoad(false);
+    }
 
-        updateDados();
-    }, [mes])
+    const renderTotal = () =>{
+        let total = dadosDonut.dados.reduce(
+            (accumulator, currentValue) => accumulator + currentValue,
+            0,
+        )
+
+        return(
+
+            <h1>{total}</h1>
+        )
+    }
+
 
 
   return (
-      <div className="p-20 ml-20 flex flex-col items-center justify-center">
-          <select id="number" value={mes} onChange={handleChange}>
+      <div className="p-20 flex flex-col ml-44">
+          <select id="number" value={mes} onChange={handleChange} className='w-6'>
               <option value="">Selecione um número</option>
               {[...Array(12).keys()].map(i => (
                   <option key={i + 1} value={i + 1}>
@@ -40,14 +54,22 @@ export default function Graph({ dadosDonut:initialDadosDonut, dadosLine:initialD
                   </option>
               ))}
           </select>
-          <div className='mb-20 flex flex-row w-full h-[500px] justify-evenly'>
+          <div className='mb-20 flex flex-row w-full h-[500px] justify-start'>
               <div className='flex flex-row w-1/3 py-12 rounded-xlg shadow-lg px-1 justify-center '>
-                  <DonutChart dadosDonut={dadosDonut}> </DonutChart>
+                  {load ? <h1>Loading...</h1> : <DonutChart dadosDonut={dadosDonut}> </DonutChart>}
+
               </div>
-              <div className='flex flex-row w-1/2  rounded-xlg shadow-lg p-5 justify-center items-center'>
-                  <LineGraph dadosLine={dadosLine} > </LineGraph>
+              <div className='flex flex-row w-1/2 rounded-xlg shadow-lg p-5 justify-center items-center'>
+                  {load ? <h1>Loading...</h1> : <LineGraph dadosLine={dadosLine} > </LineGraph>}
+              </div>
+
+          </div>
+          <div className='mb-20 flex flex-row w-full h-[500px] justify-start'>
+              <div className='flex flex-row w-1/3 py-12 rounded-xlg h-28 bg-white shadow-lg px-1 justify-center '>
+                {load ? <h1>Loading...</h1> : renderTotal()}
               </div>
           </div>
 
-      </div>)
+      </div>
+    )
 }

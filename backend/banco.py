@@ -23,18 +23,42 @@ class Banco:
         query = "SELECT * from categorias"
         return await self.database.fetch_all(query)
     
-    async def select_all(self):
-        query = "select registros.idRegistro, registros.observacao , registros.data ,registros.valor, registros.tipo, categorias.descricao from registros join categorias on registro_idcategoria = idcategorias ORDER BY data DESC"
-        return await self.database.fetch_all(query)
-    
+    async def select_all(self, last_date, last_id):
+        if last_date and last_id:
+            query = """
+                SELECT registros.idRegistro, registros.observacao, registros.data,
+                    registros.valor, registros.tipo, categorias.descricao 
+                FROM registros 
+                JOIN categorias ON registro_idcategoria = idcategorias 
+                WHERE (data, idRegistro) < (:last_date, :last_id)
+                ORDER BY data DESC, idRegistro DESC
+                LIMIT 10
+            """
+            return await self.database.fetch_all(query, {
+                "last_date": last_date,
+                "last_id": last_id
+            })
+        else:
+            # Primeira carga - sem parâmetros de cursor
+            query = """
+                SELECT registros.idRegistro, registros.observacao, registros.data,
+                    registros.valor, registros.tipo, categorias.descricao 
+                FROM registros 
+                JOIN categorias ON registro_idcategoria = idcategorias 
+                ORDER BY data DESC, idRegistro DESC
+                LIMIT 10
+            """
+            return await self.database.fetch_all(query)
     
     async def select_dados_by_categoria(self, mes):
-        query = """SELECT SUM(registros.valor) as soma, categorias.descricao, categorias.tipo from registros join categorias on registro_idcategoria = idcategorias WHERE MONTH(data) = :mes AND YEAR(data) = 2024 GROUP BY categorias.descricao , categorias.tipo"""
+        query = """SELECT SUM(registros.valor) as soma, categorias.descricao, categorias.tipo from registros join categorias on registro_idcategoria = idcategorias WHERE MONTH(data) = :mes AND YEAR(data) = 2024 GROUP BY categorias.descricao , categorias.tipo ORDER BY categorias.tipo"""
         return await self.database.fetch_all(query, {"mes": mes}) 
   
 
     async def select_dados_by_date(self, mes):
-        query = "SELECT registros.idRegistro, registros.data, registros.valor, registros.tipo, categorias.descricao from registros join categorias on registro_idcategoria = idcategorias WHERE MONTH(data) = :mes AND YEAR(data) = 2024 ORDER BY data"
+        query = """SELECT registros.data, SUM(registros.valor) as valor, registros.tipo,  GROUP_CONCAT(DISTINCT categorias.descricao SEPARATOR ', ') as descricao from registros 
+       join categorias on registro_idcategoria = idcategorias WHERE MONTH(data) = :mes AND YEAR(data) = 2024 group by data, tipo ORDER BY data"""
+
         return await self.database.fetch_all(query,{"mes": mes}) 
     
 

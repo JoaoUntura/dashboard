@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordBearer
 from datetime import datetime
 from banco import Banco
 from contextlib import asynccontextmanager
-
+from typing import Union, Optional
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -14,8 +14,6 @@ async def lifespan(app: FastAPI):
     yield
     # Cleanup
     await bd.database.disconnect()
-
-
 
 bd = Banco()
 app = FastAPI(lifespan=lifespan)
@@ -51,6 +49,9 @@ class Mes(BaseModel):
 class Id(BaseModel):
     id:int
   
+class Pagination(BaseModel):
+    lastId: Optional[int] = None    
+    lastDate: Optional[datetime] = None 
 
 @app.post("/relatorio")
 async def relatorio(registro:Registro):
@@ -76,12 +77,13 @@ async def categorias(request:Request):
     
     return {"categorias":categorias}
 
-@app.get("/transacoes")
-async def transacoes(request:Request):
-
-    transacoes  = await bd.select_all()
-
-    return {"transacoes": transacoes}
+@app.post("/transacoes")
+async def transacoes(page:Pagination):
+    print(page)
+    transacoes  = await bd.select_all(page.lastDate, page.lastId)
+    if transacoes:
+        return {"transacoes": transacoes}
+   
 
 
 @app.post("/dados_donut")

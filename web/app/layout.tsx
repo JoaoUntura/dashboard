@@ -4,13 +4,13 @@ import Dash from  './components_app/Dash'
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
+    <html>
       <body>
-        <Dash></Dash>
+        <Dash />
         {children}
       </body>
     </html>

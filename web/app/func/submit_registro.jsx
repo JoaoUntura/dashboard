@@ -4,7 +4,7 @@ import api from './api'
 export default async function submitRegistro(tipo,idcategoria,data,obb,valor) {
 
     try {
-        const response =  await api.post("/relatorio", {tipo:tipo,idcategoria: idcategoria, data: data, obb: obb, valor: valor})
+        const response =  await api.post("/registro", {tipo:tipo,categoria:{idcategorias:idcategoria}, data: data, observacao: obb, valor: valor})
     
         return response.data;
         

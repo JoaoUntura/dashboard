@@ -4,13 +4,13 @@ import api from './api'
 export default async function getDadosDonut(mes) {
 
     try {
-        const response = await api.post("/dados_donut",{mes});
+        const response = await api.get(`/registro/dados_donut/${mes}`);
     
-        return {labels:response.data.labels, dados:response.data.dados, colors:response.data.colors};
+        return response.data;
         
     } catch (error) {
         console.error("Erro ao buscar transacoes:", error);
-        return [], [],[]
+        return []
     }
   }
   

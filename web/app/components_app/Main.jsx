@@ -8,6 +8,7 @@ import getTransacoes from '../func/transacoes.jsx';
 import api from '../func/api.jsx'
 import submitRegistro from '../func/submit_registro.jsx'
 import Formulario from './Formulario.jsx'
+import deleteRegistro from '../func/delete.jsx'
 
 export default function Main({categorias, transacoes:initialTransacoes}) {
 
@@ -52,8 +53,8 @@ export default function Main({categorias, transacoes:initialTransacoes}) {
      
     }
 
-    const deleteRegistro = async(idRegistro) => {
-        api.post("/delete_registro", {id:idRegistro})
+    const deletarRegistro = async(idRegistro) => {
+        await deleteRegistro(idRegistro)
         let newTransacoes = await getTransacoes()
         setTransacoes(newTransacoes);
         setPagination({lastDate: newTransacoes[newTransacoes.length - 1]?.data || null,
@@ -92,7 +93,7 @@ export default function Main({categorias, transacoes:initialTransacoes}) {
 
   return (
     <div className="p-20 flex flex-col items-center justify-center">
-        <Table data={transacoes_data} deleteRegistro={deleteRegistro}></Table>
+        <Table data={transacoes_data} deletarRegistro={deletarRegistro}></Table>
 
         <Modal isOpen={isOpenModal} onClose={closeModal}>
            <Formulario categorias={categorias} registro={registro} setRegistro={setRegistro} finishRegistro={finishRegistro}></Formulario>

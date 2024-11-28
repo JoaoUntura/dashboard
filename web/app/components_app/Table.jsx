@@ -1,7 +1,7 @@
 import React, {useEffect,useState } from 'react';
 import { motion } from 'framer-motion';
 
-export default function Table({data, deleteRegistro}){
+export default function Table({data, deletarRegistro}){
     const [dados_filtrados, setDadosFiltrados] = useState(data)
     const [filtro, setFiltro] = useState("Todos")
 
@@ -35,11 +35,11 @@ export default function Table({data, deleteRegistro}){
                 variants={rowVariants}
                 className="border-y-2"
               >
-                <td className="py-3 px-4 pr-8 w-52">{d.descricao}</td>
+                <td className="py-3 px-4 pr-8 w-52">{d.categoriaDescricao}</td>
                 <td className="py-3 px-4 pr-8 w-52">{d.observacao}</td>
-                <td className="py-3 px-4 pr-8 w-36 " >{d.data}</td>
+                <td className="py-3 px-4 pr-8 w-36 " >{d.data_formatada}</td>
                 <td className="text-green-600 py-3 px-4 pr-8 w-28">+ {d.valor}</td>
-                <td className="py-3 px-4 pr-8 w-16"><button onClick={()=>deleteRegistro(d.idRegistro, "Receita")}>X</button></td>
+                <td className="py-3 px-4 pr-8 w-16"><button onClick={()=>deletarRegistro(d.idRegistro, "Receita")}>X</button></td>
                 </motion.tr>
             }else if(d.tipo === "Despesa" && filtro !== "Receita"){
                 return <motion.tr
@@ -50,11 +50,11 @@ export default function Table({data, deleteRegistro}){
                 variants={rowVariants}
                 className="border-y-2"
               >
-                <td className="py-3 px-4 pr-8 w-52">{d.descricao}</td>
+                <td className="py-3 px-4 pr-8 w-52">{d.categoriaDescricao}</td>
                 <td className="py-3 px-4 pr-8 w-52"> {d.observacao}</td>
-                <td className="py-3 px-4 pr-8 w-36" >{d.data}</td>
+                <td className="py-3 px-4 pr-8 w-36" >{d.data_formatada}</td>
                 <td className="text-red-600 py-3 px-4 pr-8  w-28">- {d.valor}</td>
-                <td className="py-3 px-4 pr-8 w-16"><button onClick={()=>deleteRegistro(d.idRegistro, "Despesa")}>X</button></td>
+                <td className="py-3 px-4 pr-8 w-16"><button onClick={()=>deletarRegistro(d.idRegistro, "Despesa")}>X</button></td>
             </motion.tr>
             }
         })

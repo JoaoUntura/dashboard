@@ -7,11 +7,11 @@ ChartJS.register(ArcElement, Tooltip, Legend, DoughnutController);
 
 const DonutChart = ({dadosDonut}) => {
   const data = {
-    labels: dadosDonut.labels,
+    labels: dadosDonut.map(d => d.labels),
     datasets: [{
       label: 'Valor',
-      data: dadosDonut.dados,
-      backgroundColor: dadosDonut.colors,
+      data: dadosDonut.map(d => d.dados),
+      backgroundColor: dadosDonut.map(d => d.colors),
       hoverOffset: 4
     }]
   };
@@ -20,12 +20,9 @@ const DonutChart = ({dadosDonut}) => {
     responsive: true,
     plugins: {
       legend: {
-        position: 'top',
+        display:false
       },
-      title: {
-        display: true,
-        text: 'Chart.js Doughnut Chart'
-      }
+    
     }
   };
 

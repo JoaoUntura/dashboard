@@ -3,9 +3,9 @@ import api from './api'
 
 export default async function getTransacoes(lastDate=null,lastId=null) {
     try {
-        const response = await api.post("/transacoes", {"lastDate":lastDate, "lastId":lastId});
+        const response = await api.post("/registro/paginar", {"data":lastDate, "idRegistro":lastId});
     
-        return response.data.transacoes
+        return response.data
         
     } catch (error) {
         console.error("Erro ao buscar transacoes:", error);
